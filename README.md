@@ -14,10 +14,6 @@
 [![LangChain](https://img.shields.io/badge/LangChain-1.2+-1c3c3c)](https://www.langchain.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-<br/>
-
-<video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
-
 </div>
 
 ---
@@ -25,6 +21,7 @@
 ## 目录
 
 - [项目简介](#项目简介)
+- [演示](#演示)
 - [功能特性](#功能特性)
 - [技术栈](#技术栈)
 - [目录结构](#目录结构)
@@ -42,6 +39,12 @@
 StorySmith 是一个开源的 AI 辅助小说与剧本创作平台，核心能力由 AI Agent 提供。支持从大纲到章节的全流程创作，并内置 AI 灵感对话、类型风格管理等功能。
 
 > **开源版说明**：平台发布（番茄、阅文等）与 AI 漫剧功能属于商业版特性，开源版中已移除后端实现，前端入口保留但处于禁用状态。
+
+---
+
+## 演示
+
+<video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
 
 ---
 

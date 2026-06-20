@@ -14,10 +14,6 @@
 [![LangChain](https://img.shields.io/badge/LangChain-1.2+-1c3c3c)](https://www.langchain.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-<br/>
-
-<video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
-
 </div>
 
 ---
@@ -25,6 +21,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Demo](#demo)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -42,6 +39,12 @@
 **StorySmith** is an open-source AI-powered platform for novel and script creation. Its core capabilities are driven by AI Agents, supporting the full creative workflow from outlines to chapters. It also includes an AI inspiration chat, genre & style management, and a real-time streaming workspace.
 
 > **Open-Source Note**: Platform publishing (e.g. Fanqie, Yuewen) and AI Drama features are commercial-only. Their backend logic has been removed in this release; the frontend buttons remain visible but are disabled.
+
+---
+
+## Demo
+
+<video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
 
 ---
 
