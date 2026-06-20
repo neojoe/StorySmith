@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能客服</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f5f6f8;
+      --surface:   #ffffff;
+      --card:      #ffffff;
+      --border:    #e2e5ea;
+      --accent:    #1a6ef5;
+      --accent-dim:#1558c8;
+      --user-bg:   #1a6ef5;
+      --ai-bg:     #ffffff;
+      --text:      #1a1d23;
+      --muted:     #8a919e;
+      --badge-faq:     #1a6ef5;
+      --badge-account: #18a058;
+      --badge-payment: #d4870a;
+      --badge-general: #8a919e;
+      --radius: 12px;
+      --green: #18a058;
+      --red:   #e0534a;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans SC', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 整体容器 ── */
+    #app {
+      width: 100%;
+      max-width: 680px;
+      height: 100%;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      box-shadow: 0 4px 24px rgba(0,0,0,.10);
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .header-top {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 14px; font-weight: 600; color: var(--text); }
+    .header-text p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #18a058; margin-left: auto;
+      box-shadow: 0 0 6px #18a05866;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      border-top: 1px solid var(--border);
+      padding: 0 16px;
+      gap: 4px;
+    }
+    .tab-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+      margin-bottom: -1px;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ── Pages ── */
+    .page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .page.active { display: flex; }
+
+    /* ── Messages area ── */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+      scroll-behavior: smooth;
+    }
+    #messages::-webkit-scrollbar { width: 6px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      padding: 4px 16px;
+      animation: fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+    .msg-row.user  { flex-direction: row-reverse; }
+    .msg-row.ai    { flex-direction: row; }
+
+    .avatar {
+      width: 32px; height: 32px; border-radius: 8px;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .msg-row.user .avatar { background: var(--user-bg); color: #fff; }
+    .msg-row.ai   .avatar { background: var(--accent); color: #fff; font-weight: 700; }
+
+    .bubble-wrap { max-width: 75%; display: flex; flex-direction: column; gap: 4px; }
+    .msg-row.user .bubble-wrap { align-items: flex-end; }
+    .msg-row.ai   .bubble-wrap { align-items: flex-start; }
+
+    .bubble {
+      padding: 11px 15px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      line-height: 1.7;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .msg-row.user .bubble {
+      background: var(--user-bg);
+      border-top-right-radius: 3px;
+      color: #ffffff;
+    }
+    .msg-row.ai .bubble {
+      background: var(--ai-bg);
+      border: 1px solid var(--border);
+      border-top-left-radius: 3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px; height: 14px;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .7s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .meta { display: flex; align-items: center; gap: 6px; }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .badge-faq     { background: #e8f0fe; color: #1a6ef5; border: 1px solid #bdd0fb; }
+    .badge-account { background: #e8f5ee; color: #18a058; border: 1px solid #b0ddc3; }
+    .badge-payment { background: #fef3e2; color: #d4870a; border: 1px solid #f5d49a; }
+    .badge-general { background: #f0f1f3; color: #8a919e; border: 1px solid #d8dbe0; }
+
+    .ts { font-size: 11px; color: var(--muted); }
+
+    /* ── Welcome card ── */
+    #welcome {
+      margin: 24px 16px 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+    }
+    #welcome .icon { font-size: 28px; margin-bottom: 8px; }
+    #welcome h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    #welcome p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+    .quick-btns {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center; margin-top: 14px;
+    }
+    .quick-btn {
+      background: #f0f4ff;
+      border: 1px solid #bdd0fb;
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      font-family: inherit;
+    }
+    .quick-btn:hover { background: #e0ebff; border-color: var(--accent); }
+
+    /* ── Typing indicator ── */
+    #typing {
+      display: none;
+      padding: 4px 16px;
+    }
+    #typing .inner { display: flex; gap: 10px; align-items: flex-start; }
+    #typing .bubble {
+      background: var(--ai-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      display: inline-flex; gap: 5px; align-items: center;
+      padding: 11px 15px; border-radius: var(--radius);
+      border-top-left-radius: 3px;
+    }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #bdd0fb;
+      animation: bounce .9s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .15s; }
+    .dot:nth-child(3) { animation-delay: .30s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+    /* ── Input bar ── */
+    #input-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex; gap: 8px; align-items: flex-end;
+      flex-shrink: 0;
+      box-shadow: 0 -1px 6px rgba(0,0,0,.05);
+    }
+    #query {
+      flex: 1;
+      background: #f5f6f8;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      padding: 8px 12px;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    #query:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,110,245,.12);
+      background: #fff;
+    }
+    #query::placeholder { color: var(--muted); }
+
+    #send-btn {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border: none; border-radius: 9px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(26,110,245,.3);
+    }
+    #send-btn:hover   { background: var(--accent-dim); box-shadow: 0 4px 12px rgba(26,110,245,.4); }
+    #send-btn:active  { transform: scale(.95); }
+    #send-btn:disabled { background: var(--border); cursor: not-allowed; box-shadow: none; }
+    #send-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+    .hint {
+      font-size: 11px; color: var(--muted);
+      text-align: center; padding: 2px 16px 8px;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       MCP 管理面板
+    ══════════════════════════════════════════ */
+    #page-mcp {
+      overflow-y: auto;
+      padding: 20px 16px;
+      gap: 16px;
+      background: var(--bg);
+    }
+    #page-mcp::-webkit-scrollbar { width: 6px; }
+    #page-mcp::-webkit-scrollbar-track { background: transparent; }
+    #page-mcp::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .mcp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .mcp-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mcp-card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    /* JSON 编辑器 */
+    #mcp-config-editor {
+      width: 100%;
+      min-height: 180px;
+      max-height: 320px;
+      background: #f8f9fb;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      padding: 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #mcp-config-editor:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,110,245,.10);
+      background: #fff;
+    }
+
+    .mcp-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      padding: 8px 18px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 2px 8px rgba(26,110,245,.25);
+    }
+    .btn-primary:hover  { background: var(--accent-dim); }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-primary:disabled { background: var(--border); cursor: not-allowed; box-shadow: none; }
+
+    .btn-ghost {
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: #c0c6d0; }
+
+    #mcp-status {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: none;
+    }
+    #mcp-status.ok    { background: #e8f5ee; color: #18a058; border: 1px solid #b0ddc3; display: block; }
+    #mcp-status.error { background: #fff0ef; color: var(--red); border: 1px solid #f5c0bc; display: block; }
+    #mcp-status.info  { background: #f0f4ff; color: var(--accent); border: 1px solid #bdd0fb; display: block; }
+
+    /* 服务器卡片 */
+    #mcp-servers-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .server-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .server-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+    .server-header:hover { background: #f8f9fb; }
+    .server-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 5px #18a05860;
+      flex-shrink: 0;
+    }
+    .server-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+    .server-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      background: #e8f0fe;
+      color: var(--accent);
+      border: 1px solid #bdd0fb;
+      border-radius: 20px;
+    }
+    .server-chevron {
+      color: var(--muted);
+      font-size: 12px;
+      transition: transform .2s;
+    }
+    .server-card.open .server-chevron { transform: rotate(90deg); }
+
+    .server-tools {
+      display: none;
+      border-top: 1px solid var(--border);
+      background: #f8f9fb;
+    }
+    .server-card.open .server-tools { display: block; }
+
+    .tool-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .tool-item:last-child { border-bottom: none; }
+    .tool-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+    .tool-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tool-schema-toggle {
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      text-align: left;
+      margin-top: 2px;
+    }
+    .tool-schema-toggle:hover { text-decoration: underline; }
+    .tool-schema {
+      display: none;
+      margin-top: 6px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #555;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .tool-schema.visible { display: block; }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 28px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-state .icon { font-size: 28px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <div class="header-top">
+    <div class="logo">FX</div>
+    <div class="header-text">
+      <h1>智能客服</h1>
+      <p>AI 驱动 · 在线服务</p>
+    </div>
+    <div class="status-dot" title="服务正常"></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="chat" onclick="switchTab('chat')">💬 客服对话</button>
+    <button class="tab-btn"        data-tab="mcp"  onclick="switchTab('mcp')">⚙️ MCP 管理</button>
+  </div>
+</header>
+
+<!-- ── 对话页面 ── -->
+<div id="page-chat" class="page active">
+  <div id="messages">
+    <div id="welcome">
+      <div class="icon">💬</div>
+      <h2>您好，欢迎使用智能客服</h2>
+      <p>我可以帮您解答交易规则、账户问题、出入金等常见问题，<br/>请直接输入您的问题。</p>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="quickSend(this)">最低交易手数是多少？</button>
+        <button class="quick-btn" onclick="quickSend(this)">如何进行 KYC 认证？</button>
+        <button class="quick-btn" onclick="quickSend(this)">出金需要多久到账？</button>
+        <button class="quick-btn" onclick="quickSend(this)">标准账户最低入金是多少？</button>
+      </div>
+    </div>
+    <!-- typing indicator 始终是 #messages 的最后一个子元素 -->
+    <div id="typing">
+      <div class="inner">
+        <div class="avatar">AI</div>
+        <div class="bubble">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MCP 管理页面 ── -->
+<div id="page-mcp" class="page">
+
+  <!-- 配置编辑卡片 -->
+  <div class="mcp-card">
+    <div class="mcp-card-title">🔧 服务器配置</div>
+    <div class="mcp-card-desc">编辑 <code>mcp.json</code> 配置后点击"保存并连接"，系统将自动重连并加载工具。</div>
+    <textarea id="mcp-config-editor" spellcheck="false" placeholder='{"mcpServers": {}}'></textarea>
+    <div class="mcp-actions">
+      <button class="btn-primary" id="mcp-save-btn" onclick="mcpSaveConfig()">保存并连接</button>
+      <button class="btn-ghost"   onclick="mcpLoadConfig()">重新读取</button>
+      <div id="mcp-status"></div>
+    </div>
+  </div>
+
+  <!-- 已连接服务器卡片 -->
+  <div class="mcp-card">
+    <div class="mcp-card-title">🔌 已连接服务器</div>
+    <div class="mcp-card-desc">显示当前已成功连接的 MCP 服务器及其提供的工具，点击服务器可展开查看详情。</div>
+    <div id="mcp-servers-list">
+      <div class="empty-state"><div class="icon">⏳</div>加载中...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── 输入栏（仅对话页显示） ── -->
+<div id="input-bar">
+  <textarea id="query" placeholder="请输入您的问题…" rows="1"></textarea>
+  <button id="send-btn" onclick="send()" title="发送（Enter）">
+    <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+  </button>
+</div>
+<div class="hint" id="chat-hint">Enter 发送 · Shift+Enter 换行</div>
+
+</div><!-- #app -->
+<script>
+  const API_BASE   = location.protocol === 'file:' ? 'http://localhost:8000' : '';
+  const STREAM_URL = `${API_BASE}/api/v1/chat/stream`;
+  const MCP_CONFIG_URL  = `${API_BASE}/api/v1/mcp/config`;
+  const MCP_SERVERS_URL = `${API_BASE}/api/v1/mcp/servers`;
+
+  let sessionId  = crypto.randomUUID();
+  let isStreaming = false;
+
+  const messagesEl = document.getElementById('messages');
+  const welcomeEl  = document.getElementById('welcome');
+  const typingEl   = document.getElementById('typing');
+  const queryEl    = document.getElementById('query');
+  const sendBtn    = document.getElementById('send-btn');
+  const inputBar   = document.getElementById('input-bar');
+  const chatHint   = document.getElementById('chat-hint');
+
+  const BADGE_MAP = {
+    faq:     ['FAQ 问答',  'badge-faq'],
+    account: ['账户服务',  'badge-account'],
+    payment: ['出入金',    'badge-payment'],
+    general: ['通用客服',  'badge-general'],
+  };
+
+  /* ════════════════════════════════════
+     Tab 切换
+  ════════════════════════════════════ */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === `page-${tab}`));
+    const isMcp = tab === 'mcp';
+    inputBar.style.display = isMcp ? 'none' : 'flex';
+    chatHint.style.display = isMcp ? 'none' : 'block';
+    if (isMcp) {
+      mcpLoadConfig();
+      mcpLoadServers();
+    }
+  }
+
+  /* ════════════════════════════════════
+     Chat
+  ════════════════════════════════════ */
+  function now() {
+    return new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+             .replace(/\n/g,'<br>');
+  }
+
+  function appendUserMsg(text) {
+    if (welcomeEl && welcomeEl.isConnected) welcomeEl.remove();
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `
+      <div class="avatar">我</div>
+      <div class="bubble-wrap">
+        <div class="bubble">${escHtml(text)}</div>
+        <div class="meta"><span class="ts">${now()}</span></div>
+      </div>`;
+    messagesEl.insertBefore(row, typingEl);
+    scrollBottom();
+  }
+
+  function createAiRow(intent) {
+    const [label, cls] = BADGE_MAP[intent] || ['客服', 'badge-general'];
+    const row = document.createElement('div');
+    row.className = 'msg-row ai';
+    row.innerHTML = `
+      <div class="avatar">AI</div>
+      <div class="bubble-wrap">
+        <div class="bubble"></div>
+        <div class="meta">
+          <span class="badge ${cls}">${label}</span>
+          <span class="ts">${now()}</span>
+        </div>
+      </div>`;
+    messagesEl.insertBefore(row, typingEl);
+    scrollBottom();
+    return row.querySelector('.bubble');
+  }
+
+  function scrollBottom() {
+    requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
+  }
+
+  function setLoading(on) {
+    isStreaming = on;
+    sendBtn.disabled = on;
+    typingEl.style.display = on ? 'block' : 'none';
+    if (on) scrollBottom();
+  }
+
+  async function send() {
+    const query = queryEl.value.trim();
+    if (!query || isStreaming) return;
+    queryEl.value = '';
+    queryEl.style.height = '';
+    appendUserMsg(query);
+    setLoading(true);
+
+    let bubble = null, textContent = '';
+
+    try {
+      const res = await fetch(STREAM_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, session_id: sessionId }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split('\n\n');
+        buf = parts.pop();
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line.startsWith('data: ')) continue;
+          let evt;
+          try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+          if (evt.type === 'intent') {
+            typingEl.style.display = 'none';
+            bubble = createAiRow(evt.intent);
+            bubble.innerHTML = '<span class="cursor"></span>';
+          } else if (evt.type === 'token' && bubble) {
+            textContent += evt.content;
+            bubble.innerHTML = escHtml(textContent) + '<span class="cursor"></span>';
+            scrollBottom();
+          } else if (evt.type === 'done' && bubble) {
+            bubble.innerHTML = escHtml(textContent);
+            scrollBottom();
+          } else if (evt.type === 'error') {
+            if (!bubble) bubble = createAiRow('general');
+            bubble.innerHTML = `<span style="color:#f85149">${escHtml(evt.message || '请求失败')}</span>`;
+          }
+        }
+      }
+    } catch (err) {
+      if (!bubble) bubble = createAiRow('general');
+      bubble.innerHTML = `<span style="color:#e0534a">连接失败，请检查服务是否启动。</span>`;
+      console.error(err);
+    } finally {
+      setLoading(false);
+      if (bubble) {
+        const cursor = bubble.querySelector('.cursor');
+        if (cursor) cursor.remove();
+      }
+    }
+  }
+
+  function quickSend(btn) { queryEl.value = btn.textContent; send(); }
+
+  queryEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  queryEl.addEventListener('input', () => {
+    queryEl.style.height = '';
+    queryEl.style.height = Math.min(queryEl.scrollHeight, 140) + 'px';
+  });
+
+  /* ════════════════════════════════════
+     MCP 管理
+  ════════════════════════════════════ */
+  function mcpSetStatus(msg, type /* ok | error | info */) {
+    const el = document.getElementById('mcp-status');
+    el.textContent = msg;
+    el.className = type;
+  }
+
+  async function mcpLoadConfig() {
+    const editor = document.getElementById('mcp-config-editor');
+    mcpSetStatus('加载中...', 'info');
+    try {
+      const res  = await fetch(MCP_CONFIG_URL);
+      const data = await res.json();
+      editor.value = JSON.stringify(data.config, null, 2);
+      mcpSetStatus('', '');
+      document.getElementById('mcp-status').style.display = 'none';
+    } catch (e) {
+      mcpSetStatus('读取配置失败：' + e.message, 'error');
+    }
+  }
+
+  async function mcpSaveConfig() {
+    const editor  = document.getElementById('mcp-config-editor');
+    const saveBtn = document.getElementById('mcp-save-btn');
+    let config;
+    try {
+      config = JSON.parse(editor.value);
+    } catch {
+      mcpSetStatus('JSON 格式错误，请检查配置', 'error');
+      return;
+    }
+    saveBtn.disabled = true;
+    mcpSetStatus('保存并连接中...', 'info');
+    try {
+      const res  = await fetch(MCP_CONFIG_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || '保存失败');
+      const n = data.total_tools || 0;
+      const servers = data.connected_servers || [];
+      mcpSetStatus(
+        servers.length
+          ? `✓ 已连接 ${servers.length} 个服务器，共 ${n} 个工具（${servers.join('、')}）`
+          : '配置已保存，但没有服务器成功连接',
+        servers.length ? 'ok' : 'error'
+      );
+      mcpLoadServers();
+    } catch (e) {
+      mcpSetStatus('连接失败：' + e.message, 'error');
+    } finally {
+      saveBtn.disabled = false;
+    }
+  }
+
+  async function mcpLoadServers() {
+    const container = document.getElementById('mcp-servers-list');
+    container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div>查询中...</div>';
+    try {
+      const res  = await fetch(MCP_SERVERS_URL);
+      const data = await res.json();
+      renderServers(data.servers || []);
+    } catch (e) {
+      container.innerHTML = `<div class="empty-state" style="color:var(--red)">查询失败：${escHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderServers(servers) {
+    const container = document.getElementById('mcp-servers-list');
+    if (!servers.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔌</div>
+          暂无已连接的 MCP 服务器<br>
+          <span style="font-size:11px;margin-top:4px;display:block;">请在上方配置并点击"保存并连接"</span>
+        </div>`;
+      return;
+    }
+    container.innerHTML = '';
+    servers.forEach((s, idx) => {
+      const card = document.createElement('div');
+      card.className = 'server-card';
+      card.innerHTML = `
+        <div class="server-header" onclick="toggleServer(this)">
+          <span class="server-dot"></span>
+          <span class="server-name">${escHtml(s.server)}</span>
+          <span class="server-badge">${s.tool_count} 个工具</span>
+          <span class="server-chevron">▶</span>
+        </div>
+        <div class="server-tools">
+          ${s.tools.map(t => renderTool(t)).join('')}
+          ${!s.tools.length ? '<div class="tool-item" style="color:var(--muted);font-size:12px;">该服务器暂无工具</div>' : ''}
+        </div>`;
+      container.appendChild(card);
+      // 默认展开第一个
+      if (idx === 0) card.classList.add('open');
+    });
+  }
+
+  function renderTool(t) {
+    const schemaStr = t.schema ? JSON.stringify(t.schema, null, 2) : null;
+    const schemaHtml = schemaStr ? `
+      <button class="tool-schema-toggle" onclick="toggleSchema(this)">▸ 查看参数结构</button>
+      <pre class="tool-schema">${escHtmlRaw(schemaStr)}</pre>` : '';
+    return `
+      <div class="tool-item">
+        <div class="tool-name">${escHtml(t.name)}</div>
+        ${t.description ? `<div class="tool-desc">${escHtml(t.description)}</div>` : ''}
+        ${schemaHtml}
+      </div>`;
+  }
+
+  function escHtmlRaw(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function toggleServer(header) {
+    header.closest('.server-card').classList.toggle('open');
+  }
+
+  function toggleSchema(btn) {
+    const pre = btn.nextElementSibling;
+    const open = pre.classList.toggle('visible');
+    btn.textContent = open ? '▾ 收起参数结构' : '▸ 查看参数结构';
+  }
+</script>
+</body>
+</html>

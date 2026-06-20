@@ -1,0 +1,1 @@
+export { NovelPage } from "./page";

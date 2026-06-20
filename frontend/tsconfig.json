@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    /* ── Target & Module ───────────────────────────── */
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+
+    /* ── Module Resolution ─────────────────────────── */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* ── React / JSX ───────────────────────────────── */
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true,
+
+    /* ── Path Aliases ──────────────────────────────── */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* ── Strict Type Checking ──────────────────────── */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}

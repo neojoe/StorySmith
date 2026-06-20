@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# 系统依赖（Python 部分包编译需要 gcc）
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc && \
+    rm -rf /var/lib/apt/lists/*
+
+# 优先复制依赖，充分利用 Docker 层缓存
+COPY backend/requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 复制后端代码（注意 context 是项目根目录）
+COPY backend/app/ ./app/
+
+# 运行时目录
+#   logs/       Loguru 日志
+#   memory/     SQLite checkpoint（CHECKPOINT_SQLITE_PATH=./memory/checkpoints.db）
+#   novel_data/ SQLite 小说数据库（SQLite 降级模式）
+#   chroma_db/  Chroma 向量库持久化
+RUN mkdir -p logs memory novel_data chroma_db app/static
+
+EXPOSE 8080
+
+# 以项目根目录为工作目录启动，保证 app/main.py 的 sys.path 修正逻辑正确
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--log-level", "info"]

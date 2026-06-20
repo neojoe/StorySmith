@@ -1,0 +1,1 @@
+export { AgentNovelPage } from "./page";

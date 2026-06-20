@@ -1,0 +1,37 @@
+# 版本控制
+.git
+.gitignore
+
+# Python 缓存
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache
+
+# 虚拟环境
+.venv
+venv
+env
+
+# 运行时生成的目录（容器内挂载或运行时创建）
+logs/
+memory/
+chroma_db/
+
+# 敏感配置（通过环境变量或 --env-file 注入，不打包进镜像）
+.env
+
+# IDE / 编辑器
+.idea
+.vscode
+*.swp
+*.swo
+
+# 其他项目目录（monorepo 中的无关子项目）
+deer-flow/
+dify/
+opencode/
+langchain/
+langgraph/
+deepagents/
+qdrant-client/

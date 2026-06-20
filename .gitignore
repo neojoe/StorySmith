@@ -1,0 +1,137 @@
+# ════════════════════════════════════════════════════════════════════
+#  StorySmith — .gitignore
+# ════════════════════════════════════════════════════════════════════
+
+# ── 敏感配置（模板 .env.example 保留）────────────────────────────────
+.env
+backend/.env
+*.env.local
+*.env.*.local
+
+# ── Python ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.pdb
+
+# ── Python 虚拟环境 ───────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+backend/.venv/
+backend/venv/
+
+# ── 运行时数据（Docker volumes / 本地开发产生的持久化数据）──────────────
+data/
+backend/novel_data/
+backend/memory/
+backend/chroma_db/
+backend/agent_databases/
+backend/data/
+
+# ── 日志 ──────────────────────────────────────────────────────────────
+*.log
+logs/
+backend/app/logs/
+backend/logs/
+
+# ── 数据库文件 ────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── 平台数据（含 cookie 等敏感信息）──────────────────────────────────
+backend/data/platforms/
+
+# ── Node / 前端 ───────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+.npm
+*.tsbuildinfo
+.eslintcache
+
+# ── 前端构建产物 ──────────────────────────────────────────────────────
+dist/
+build/
+.cache/
+
+# ── LangChain 本地 monorepo（体积巨大，不纳入版本管理）──────────────
+langchain/
+
+# ── Docker 构建缓存 ───────────────────────────────────────────────────
+.docker/
+
+# ── IDE / 编辑器 ──────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ── macOS ─────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Windows ───────────────────────────────────────────────────────────
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ── Linux ─────────────────────────────────────────────────────────────
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ── 测试 / 覆盖率 ─────────────────────────────────────────────────────
+.pytest_cache/
+.hypothesis/
+test-results/
+junit.xml
+
+# ── 临时文件 ──────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+*.rej
+patch_assembly.py
+
+# ── HyperFrames 视频制作源文件（不纳入版本管理）──────────────────────
+storysmith-promo/
+cursor_hyperframes_video_generation_cod.md

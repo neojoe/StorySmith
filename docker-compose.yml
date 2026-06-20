@@ -1,0 +1,56 @@
+services:
+
+  # ── 后端：FastAPI + Uvicorn ───────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # 持久化数据：小说 SQLite 数据库
+      - ./data/novel_data:/app/novel_data
+      # 持久化数据：LangGraph checkpoint（对话记忆）
+      - ./data/memory:/app/memory
+      # 持久化数据：Chroma 向量库
+      - ./data/chroma_db:/app/chroma_db
+      # 持久化数据：日志文件
+      - ./data/logs:/app/logs
+      # MCP 配置文件（可选，挂载后无需重建镜像即可修改）
+      - ./backend/app/config:/app/app/config
+    networks:
+      - ai-novel-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/v1/novel/genres')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── 前端：React SPA + Nginx 反代 ─────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      args:
+        VITE_APP_NAME: "StorySmith"
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ai-novel-net
+
+networks:
+  ai-novel-net:
+    driver: bridge
+
+# ── 数据卷声明（已通过 bind mount 挂载到 ./data/，此处仅供参考） ─────────────
+# 如需使用 Docker 管理的命名卷，可取消注释：
+# volumes:
+#   novel_data:
+#   memory:
+#   chroma_db:
+#   logs:

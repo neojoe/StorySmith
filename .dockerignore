@@ -1,0 +1,61 @@
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+*.egg
+.venv/
+venv/
+env/
+.Python
+
+# ── Node / Frontend ───────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# ── 开发 / IDE ────────────────────────────────────────────
+.git/
+.gitignore
+.cursor/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── 测试 ──────────────────────────────────────────────────
+backend/tests/
+**/__tests__/
+**/*.test.*
+**/*.spec.*
+
+# ── 运行时数据（不打包进镜像，通过 Volume 挂载）──────────
+backend/app/logs/
+backend/app/memory/
+backend/app/novel_data/
+backend/app/chroma_db/
+backend/data/
+data/
+
+# ── 敏感文件 ──────────────────────────────────────────────
+.env
+backend/.env
+*.pem
+*.key
+*.crt
+
+# ── 文档 / 资源 ───────────────────────────────────────────
+*.md
+docs/
+*.png
+*.jpg
+*.gif
+
+# ── Docker 相关（避免循环引用）────────────────────────────
+docker-compose*.yml
+docker/

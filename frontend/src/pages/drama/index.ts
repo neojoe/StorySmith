@@ -1,0 +1,1 @@
+export { DramaPage } from "./page";

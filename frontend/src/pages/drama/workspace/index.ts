@@ -1,0 +1,1 @@
+export { DramaWorkspacePage } from "./page";
