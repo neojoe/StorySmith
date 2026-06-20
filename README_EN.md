@@ -16,7 +16,7 @@
 
 <br/>
 
-<video src="https://github.com/neojoe/StorySmith/raw/main/docs/demo.mp4" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
 
 </div>
 
