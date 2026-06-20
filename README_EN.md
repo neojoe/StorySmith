@@ -46,6 +46,8 @@
 
 <video src="https://github.com/user-attachments/assets/6675d535-e9e1-441f-89cf-bc756f8e0b8d" controls width="100%"></video>
 
+![Screenshot](./docs/frontend.jpg)
+
 ---
 
 ## Features
