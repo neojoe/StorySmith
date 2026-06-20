@@ -39,7 +39,7 @@
 
 ## Overview
 
-**StorySmith** is an open-source AI-powered platform for novel and script creation. Its core capabilities are driven by AI Agents built with LangChain and LangGraph, supporting the full creative workflow from outlines to chapters. It also includes an AI inspiration chat, genre & style management, and a real-time streaming workspace.
+**StorySmith** is an open-source AI-powered platform for novel and script creation. Its core capabilities are driven by AI Agents, supporting the full creative workflow from outlines to chapters. It also includes an AI inspiration chat, genre & style management, and a real-time streaming workspace.
 
 > **Open-Source Note**: Platform publishing (e.g. Fanqie, Yuewen) and AI Drama features are commercial-only. Their backend logic has been removed in this release; the frontend buttons remain visible but are disabled.
 
