@@ -38,8 +38,6 @@
 
 **StorySmith** is an open-source AI-powered platform for novel and script creation. Its core capabilities are driven by AI Agents, supporting the full creative workflow from outlines to chapters. It also includes an AI inspiration chat, genre & style management, and a real-time streaming workspace.
 
-> **Open-Source Note**: Platform publishing (e.g. Fanqie, Yuewen) and AI Drama features are commercial-only. Their backend logic has been removed in this release; the frontend buttons remain visible but are disabled.
-
 ---
 
 ## Demo
@@ -55,8 +53,6 @@
 | AI Novel Studio | ✅ Available | Full workflow: outline → chapters. Lightweight / full-book auto / Agent-driven modes |
 | AI Inspiration | ✅ Available | Multi-turn conversational brainstorming for story ideas, characters, world-building |
 | Dashboard | ✅ Available | Project stats, word count tracking, and creation progress board |
-| AI Drama Factory | 🔒 Coming Soon | Storyboard generation and voice synthesis (commercial feature) |
-| Platform Publishing | 🔒 Coming Soon | One-click publish to major novel platforms (commercial feature) |
 
 ---
 
@@ -202,7 +198,6 @@ Once the backend is running, visit:
 
 ## Roadmap
 
-- [ ] Open-source AI Drama Factory
 - [ ] More LLM provider adapters (Claude / Gemini)
 - [ ] Novel export (EPUB / PDF / TXT)
 - [ ] User system and project permissions
