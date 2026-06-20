@@ -135,3 +135,14 @@ patch_assembly.py
 # ── HyperFrames 视频制作源文件（不纳入版本管理）──────────────────────
 storysmith-promo/
 cursor_hyperframes_video_generation_cod.md
+hyperframes/
+
+# ── 开发调试产物 ──────────────────────────────────────────────────────
+backend/test*.py
+backend/ws_test*.py
+backend/*_debug.*
+backend/*_debug/
+backend/search_responses.txt
+backend/book_page.png
+backend/*.html
+!backend/app/static/index.html
